@@ -1,0 +1,34 @@
+<form action="{% url 'blog:contact_us' %}" method="POST" class="js-contact-us-form">
+{% csrf_token %}
+<div class="modal-header">
+    <h2 class="modal-title">Contact us</h2>
+</div>
+<div class="modal-body">
+    {% load widget_tweaks %}
+    <table class="table table-hover">
+        {% for field in form %}
+          <div class="form-group{% if field.errors %} has-error{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if form.is_bound %}
+              {% if field.errors %}
+                {% render_field field class+="form-control is-invalid" %}
+                {% for error in field.errors %}
+                  <div class="invalid-feedback">
+                    {{ error }}
+                  </div>
+                {% endfor %}
+              {% else %}
+                {% render_field field class+="form-control is-valid" %}
+              {% endif %}
+            {% else %}
+              {% render_field field class+="form-control" %}
+            {% endif %}
+          </div>
+        {% endfor %}
+    </table>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    <button type="submit" class="btn btn-primary">Sent</button>
+</div>
+</form>

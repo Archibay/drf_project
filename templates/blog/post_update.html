@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Post update</h2>
+    <form action= "{% url 'blog:post_update' form.instance.pk %}" method="POST" class="post-form">
+        {% csrf_token %}
+    <table class="table table-hover">
+        {{ form.as_table }}
+    </table>
+        <button type="submit" class="save btn btn-secondary">Save</button>
+    </form>
+{% endblock %}

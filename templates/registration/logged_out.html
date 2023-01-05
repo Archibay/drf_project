@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+    <p>Logged out</p>
+    <a href ="{% url 'user_management:login' %}">Login again</a>
+
+{% endblock %}

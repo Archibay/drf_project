@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Post detail</h2>
+    {{ object.instance.pk }}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <tr>
+                <td>Post</td>
+                <td>{{ post.title }}</td>
+            </tr>
+            <tr>
+                <td>Author</td>
+                <td>{{ post.user }}</td>
+            </tr>
+            <tr>
+                <td>Publication date</td>
+                <td>{{ post.created_date }}</td>
+            </tr>
+            <tr>
+                <td>Text</td>
+                <td>{{ post.text }}</td>
+            </tr>
+        </table>
+    </div>
+    <h2>Comments</h2>
+    <ul class="list-group list-group-flush">
+    {% for a in comment %}
+        <li class="list-group-item"><strong>{{ a.username }}</strong><br>
+            {{ a.text }}</li>
+    {% endfor %}
+    </ul>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if comment.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ comment.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ comment.number }} of {{ comment.paginator.num_pages }}.
+        </span>
+
+        {% if comment.has_next %}
+            <a href="?page={{ comment.next_page_number }}">next</a>
+            <a href="?page={{ comment.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+        <p><a href='{% url "blog:comment_add" pk=post.id %}'>Add comment</a></p>
+
+{% endblock %}

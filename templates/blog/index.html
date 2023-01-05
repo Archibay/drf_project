@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Index</h2>
+
+<h1>All allowed links:</h1>
+
+    <li><a href='{% url "user_management:registration" %}'>Registration</a></li>
+    <li><a href='{% url "user_management:login" %}'>Login</a></li>
+    <li><a href='{% url "user_management:logout" %}'>Logout</a></li>
+    <li><a href='{% url "blog:add_post" %}'>Add post</a></li>
+    <li><a href='{% url "blog:posts_all" %}'>List of all posts</a></li>
+
+{% endblock %}

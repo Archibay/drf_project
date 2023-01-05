@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>All posts</h2>
+
+    <table class="table table-hover">
+        <thead class="table-dark">
+        <tr>
+            <td>Author</td>
+            <td>Title</td>
+            <td>Publication date</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for a in post_list %}
+        <tr>
+            <td><a href="{% url 'user_management:user_detail_pub' pk=a.user.id %}">{{ a.user }}</a></td>
+            <td><a href='{% url "blog:post_detail" pk=a.id %}'>{{ a.title }}</a></td>
+            <td>{{ a.created_date }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}
