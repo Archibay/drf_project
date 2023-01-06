@@ -26,23 +26,24 @@ class Command(BaseCommand):
 
         # add Posts
         total_p = kwargs['total_p']
-        u_list = User.objects.values_list('id', flat=True)
+        u_list1 = User.objects.values_list('id', flat=True)
         for i in range(total_p):
-            random_u = random.choice(u_list)
+            random_u1 = random.choice(u_list1)
             objs = Post(title=fake.sentence(nb_words=random.randrange(1, 5)),
                         text=fake.text(max_nb_chars=1000),
                         published=random.choice([True, False]),
-                        user=User.objects.get(id=random_u))
+                        owner=User.objects.get(id=random_u1))
             objs.save()
 
         # add Comments
         total_c = kwargs['total_c']
         p_list = Post.objects.values_list('id', flat=True)
+        u_list2 = User.objects.values_list('id', flat=True)
         for b in range(total_c):
             random_p = random.choice(p_list)
-            objs = Comments(username=fake.word(),
-                            text=fake.text(max_nb_chars=100),
+            random_u2 = random.choice(u_list2)
+            objs = Comments(text=fake.text(max_nb_chars=100),
                             post=Post.objects.get(id=random_p),
-                            published=random.choice([True, False])
-                            )
+                            published=random.choice([True, False]),
+                            owner=User.objects.get(id=random_u2))
             objs.save()

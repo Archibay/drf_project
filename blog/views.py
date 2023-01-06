@@ -14,6 +14,17 @@ from .tasks import send_mail as celery_send_mail
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 
+from blog.serializers import PostSerializer, CommentsSerializer
+from rest_framework import generics
+from rest_framework.decorators import api_view
+from rest_framework import viewsets
+from rest_framework.reverse import reverse
+from rest_framework import renderers
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import permissions
+from .permissions import IsOwnerOrReadOnly
+
 
 @login_required
 def post_new(request):
@@ -21,7 +32,7 @@ def post_new(request):
         form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
-            post.user = request.user
+            post.owner = request.user
             post.published_date = timezone.now()
             post.save()
             subject = 'New post'
@@ -85,7 +96,7 @@ class LoginUserPostsAllView(LoginRequiredMixin, ListView):
     template_name = 'blog/user_posts.html'
 
     def get_queryset(self):
-        return Post.objects.filter(user=self.request.user)
+        return Post.objects.filter(owner=self.request.user)
 
     def get_object(self, **kwargs):
         user = self.request.user
@@ -110,7 +121,7 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('blog:user_posts')
 
     def get_queryset(self):
-        return Post.objects.filter(user=self.request.user)
+        return Post.objects.filter(owner=self.request.user)
 
 
 class PostDeleteView(LoginRequiredMixin, DeleteView):
@@ -120,12 +131,14 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     login_url = reverse_lazy('registration:login')
 
 
-class CommentAddView(CreateView):
+class CommentAddView(LoginRequiredMixin, CreateView):
     model = Comments
     form_class = CommentForm
     template_name = 'blog/comment_add.html'
+    login_url = reverse_lazy('user_management:login')
 
     def form_valid(self, form):
+        form.instance.owner = self.request.user
         form.instance.post_id = self.kwargs['pk']
         subject = 'New comment'
         message = 'New comment was added'
@@ -136,6 +149,58 @@ class CommentAddView(CreateView):
         return super().form_valid(form)
 
     success_url = reverse_lazy('blog:posts_all')
+
+
+class CommentUpdateView(LoginRequiredMixin, UpdateView):
+    model = Comments
+    fields = ['text', 'published']
+    template_name = 'blog/comment_update.html'
+    success_url = reverse_lazy('blog:user_posts')
+
+    def get_queryset(self):
+        return Comments.objects.filter(owner=self.request.user)
+
+
+class CommentsListView(ListView):
+    model = Comments
+    fields = ['user', 'text']
+    queryset = Comments.objects.filter(published=True)
+    paginate_by = 10
+    template_name = 'blog/comments_all.html'
+
+    def get_object(self, **kwargs):
+        user = self.request.user
+        return user
+
+
+class LoginUserCommentsAllView(LoginRequiredMixin, ListView):
+    model = Comments
+    paginate_by = 10
+    template_name = 'blog/user_comments_all.html'
+
+    def get_queryset(self):
+        return Comments.objects.filter(owner=self.request.user)
+
+    def get_object(self, **kwargs):
+        user = self.request.user
+        return user
+
+
+class UserCommentDetailView(DetailView):
+    model = Comments
+    template_name = 'blog/user_comment_detail.html'
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(UserCommentDetailView, self).get_context_data(**kwargs)
+    #     post = self.get_object()
+    #     return context
+
+
+class CommentDeleteView(LoginRequiredMixin, DeleteView):
+    model = Comments
+    template_name = 'blog/delete_comment.html'
+    success_url = reverse_lazy('blog:user_comments')
+    login_url = reverse_lazy('registration:login')
 
 
 def contact_us_view(request):
@@ -174,3 +239,44 @@ def contact_us_view(request):
 #     else:
 #         form = ContactUsForm()
 #     return render(request, "contact_us.html", context={"form": form})
+
+class PostViewSet(viewsets.ModelViewSet):
+    """
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+
+    Additionally we also provide an extra `highlight` action.
+    """
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly]
+
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
+        post = self.get_object()
+        return Response(post.highlighted)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
+    """
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+
+    Additionally we also provide an extra `highlight` action.
+    """
+    queryset = Comments.objects.all()
+    serializer_class = CommentsSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly]
+
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
+        comments = self.get_object()
+        return Response(comments.highlighted)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

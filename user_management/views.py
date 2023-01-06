@@ -1,12 +1,13 @@
 from django.contrib.auth import authenticate, login
-from django.shortcuts import render
 from django.contrib.auth.views import FormView
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, DeleteView, ListView, DetailView
+from django.views.generic import UpdateView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from user_management.forms import RegistrationForm
-from blog.models import Post
+from user_management.serializers import UserSerializer
+from rest_framework import generics
+from rest_framework import viewsets
 
 
 class RegistrationView(FormView):
@@ -48,6 +49,14 @@ class UserProfilePublicDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(UserProfilePublicDetailView, self).get_context_data(**kwargs)
         user = self.get_object()
-        context['posts_count'] = user.post_set.filter(published=True).count()
-        context['posts'] = user.post_set.filter(published=True)
+        context['posts_count'] = user.post.filter(published=True).count()
+        context['posts'] = user.post.filter(published=True)
         return context
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `retrieve` actions.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer

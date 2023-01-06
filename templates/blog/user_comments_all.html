@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>All Comments</h2>
+
+    <table class="table table-hover">
+        <thead class="table-dark">
+        <tr>
+            <td>Text</td>
+            <td>To post</td>
+            <td>Published?</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for a in comments_list %}
+        <tr>
+            <td><a href='{% url "blog:comment_detail" pk=a.id %}'>{{ a.text }}</a></td>
+            <td><a href="{% url 'blog:post_detail' pk=a.id %}">{{ a.post }}</a></td>
+            <td>{% if a.published %}
+                Yes
+                {% else %}
+                No
+                {% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}
