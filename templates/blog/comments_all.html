@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>All comments</h2>
+
+    <table class="table table-hover">
+        <thead class="table-dark">
+        <tr>
+            <td>Author</td>
+            <td>Text</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for a in comments_list %}
+        <tr>
+            <td><a href='{% url "user_management:user_detail_pub" pk=a.owner.id %}'>{{ a.owner }}</a></td>
+            <td><a href='{% url "blog:comment_detail" pk=a.id %}'>{{ a.text }}</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}

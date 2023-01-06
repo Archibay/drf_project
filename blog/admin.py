@@ -17,19 +17,19 @@ class CommentsInlineModelAdmin(admin.TabularInline):
 
 
 class CommentsAdmin(admin.ModelAdmin):
-    list_display = ['username', 'text', 'published']
+    list_display = ['owner', 'text', 'published']
     list_filter = ['published']
     list_per_page = 20
-    fields = ['username', 'post', 'text', 'published']
-    search_fields = ['username']
+    fields = ['owner', 'post', 'text', 'published']
+    search_fields = ['owner']
     # inlines = [PostInlineModelAdmin]
     save_as = True
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['user', 'title', 'text', 'published']
+    list_display = ['owner', 'title', 'text', 'published']
     list_filter = ['published']
-    search_fields = ['user']
+    search_fields = ['owner']
     date_hierarchy = 'created_date'
     list_per_page = 20
     fieldsets = (
@@ -37,7 +37,7 @@ class PostAdmin(admin.ModelAdmin):
             'fields': ('title', 'text', 'created_date', 'published')
         }),
         ('User', {
-            'fields': ('user',)
+            'fields': ('owner',)
          }),
     )
     inlines = [CommentsInlineModelAdmin]

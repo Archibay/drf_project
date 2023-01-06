@@ -13,7 +13,7 @@ class CommentForm(forms.ModelForm):
 
     class Meta:
         model = Comments
-        fields = ('username', 'text')
+        fields = ('text', 'published')
 
 
 class ContactUsForm(forms.Form):

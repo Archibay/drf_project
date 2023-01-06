@@ -13,7 +13,7 @@
         <tbody>
         {% for a in post_list %}
         <tr>
-            <td><a href="{% url 'user_management:user_detail_pub' pk=a.user.id %}">{{ a.user }}</a></td>
+            <td><a href="{% url 'user_management:user_detail_pub' pk=a.owner.id %}">{{ a.owner }}</a></td>
             <td><a href='{% url "blog:post_detail" pk=a.id %}'>{{ a.title }}</a></td>
             <td>{{ a.created_date }}</td>
         </tr>
